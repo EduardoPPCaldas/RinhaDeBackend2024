@@ -41,12 +41,12 @@ public class ClientRepository : IClientRepository
 
     public async Task<List<Client>> Get(Expression<Func<Client, bool>> expression, CancellationToken cancellationToken = default)
     {
-        return await _database.Clients.Where(expression).ToListAsync(cancellationToken);
+        return await _database.Clients.Include(x => x.Transactions).Where(expression).ToListAsync(cancellationToken);
     }
 
     public async Task<Client?> GetById(int id, CancellationToken cancellationToken = default)
     {
-        return await _database.Clients.FindAsync(id, cancellationToken);
+        return await _database.Clients.Include(x => x.Transactions).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
     public async Task<Result> Update(Client obj, int id, CancellationToken cancellationToken = default)

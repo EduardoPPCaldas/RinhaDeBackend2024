@@ -1,14 +1,9 @@
-using FluentResults;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 using RinhaDeDev.Application.Adapters;
 using RinhaDeDev.Application.Exceptions;
 using RinhaDeDev.Application.Utils;
 using RinhaDeDev.Domain.Entities;
-using RinhaDeDev.Domain.Enums;
-using RinhaDeDev.Domain.Errors;
 using RinhaDeDev.Domain.Repositories;
 using RinhaDeDev.Domain.Utils;
 
@@ -38,7 +33,8 @@ public class TransactionUseCase : ITransactionUseCase
         }
 
         var transaction = new BankTransaction(request.Value, request.Description, request.Type.MapToTransactionType());
-        if(client.Limit < client.Balance - transaction.Value && transaction.Type == TransactionType.Debit)
+        var result = client.AddTransaction(transaction);
+        if(result.IsFailed)
         {
             throw new HttpErrorResponseException
             {
@@ -50,9 +46,7 @@ public class TransactionUseCase : ITransactionUseCase
                 StatusCode = StatusCodes.Status422UnprocessableEntity
             };
         }
-
-        client.Transactions.Add(transaction);
-        client.Balance -= transaction.Value;
+        
         await _clientRepository.Update(client, client.Id, cancellationToken);
 
         return new TransactionResponse(client.Limit, client.Balance);

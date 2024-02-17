@@ -13,6 +13,7 @@ public static class ClientEndpoints
         var group = app.MapGroup(EndpointGroup);
 
         group.MapPost("{id}/transacoes", CreateTransaction);
+        group.MapGet("{id}/extrato", Extract);
 
         return app;
     }
@@ -25,11 +26,14 @@ public static class ClientEndpoints
     {
         var result = await useCase.ExecuteAsync(request, id, cancellationToken);
 
-        if(result.IsFailed)
-        {
-            return TypedResults.BadRequest();
-        }
+        return TypedResults.Ok(result);
+    }
 
-        return TypedResults.Ok(result.Value);
+    public static async Task<IResult> Extract(
+        [FromServices] IExtractUseCase useCase,
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        return TypedResults.Ok(await useCase.ExecuteAsync(id, cancellationToken));
     }
 }
