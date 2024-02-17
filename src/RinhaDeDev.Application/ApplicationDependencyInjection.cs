@@ -9,6 +9,7 @@ public static class ApplicationDependencyInjection
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<ITransactionUseCase, TransactionUseCase>();
+        services.AddScoped<IExtractUseCase, ExtractUseCase>();
 
         return services;
     }
