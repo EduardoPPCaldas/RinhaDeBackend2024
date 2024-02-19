@@ -2,6 +2,7 @@ using RinhaDeDev.Application;
 using RinhaDeDev.Domain;
 using RinhaDeDev.Infrastructure;
 using RinhaDeDev.WebApi;
+using RinhaDeDev.WebApi.Extensions;
 using RinhaDeDev.WebApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,8 @@ builder.Services
     .AddDomainServices();
 
 var app = builder.Build();
+
+await app.MigrateDatabase();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

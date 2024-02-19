@@ -1,0 +1,64 @@
+version: '3.5'
+
+services:
+  api01: &api
+    image: ${REGISTRY:-RinhaDev}/rinhadev.api:latest
+    hostname: api01
+    networks:
+      - default
+    depends_on:
+      - db
+    ports:
+      - "3001:3000"
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: "0.55"
+          memory: "200MB"
+
+  api02:
+    <<: *api
+    hostname: api02
+    ports:
+      - "3002:3000"
+    
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api01
+      - api02
+    ports:
+      - "9999:9999"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.15"
+          memory: "10MB"
+
+  db:
+    image: postgres
+    hostname: db
+    container_name: db
+    networks:
+      - default
+    environment:
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=rinha
+    ports:
+      - "5432:5432"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: "140MB"
+
+networks:
+  default:
+    driver: bridge
+
