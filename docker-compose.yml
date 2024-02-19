@@ -42,7 +42,6 @@ services:
 
   db:
     image: postgres
-    hostname: db
     container_name: db
     networks:
       - default
